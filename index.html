@@ -19,7 +19,7 @@
             </div>
             <div class="block-input">
               <label for="firstPay-input">Первоначальный платеж</label>
-              <input id="firstPay-input" type="number" />
+              <input value="0" id="firstPay-input" type="number" />
             </div>
             <div class="block-input">
               <label for="percent-input">Процент</label>
@@ -31,11 +31,21 @@
             </div>
             <div class="block-input">
               <label for="term-input">Выкупной процент</label>
-              <input id="redemptionPercent-input" type="redemptionPercent" />
+              <input
+                value="1"
+                id="redemptionPercent-input"
+                type="redemptionPercent"
+              />
             </div>
             <div class="block-input">
               <label for="term-input">НДС</label>
-              <input id="nds-input" type="number" />
+              <input value="20" id="nds-input" type="number" />
+            </div>
+            <div class="condition">
+              <div>
+                <label for="term-input">НДС</label>
+                <input value="20" id="nds-input" type="number" />
+              </div>
             </div>
             <button class="calc-result">Посчитать</button>
           </form>

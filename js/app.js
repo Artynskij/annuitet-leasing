@@ -13,11 +13,13 @@ buttonCalcResult.addEventListener("click", (e) => {
     nds: 20,
   };
   const dataLeasing = getDataInput(dataLeasingMock);
-  console.log(dataLeasing);
-  
+  if (dataLeasing === "error") {
+    alert("нету важных данных");
+    return;
+  }
   const schedule = leasingSchedule({ ...dataLeasing });
- 
-  table.innerHTML = ''
+
+  table.innerHTML = "";
   table.appendChild(createHeadTable());
   schedule.forEach((scheduleItem) => {
     table.appendChild(
@@ -43,19 +45,22 @@ function getDataInput(dataLeasing) {
   const firstPayInput = +document.querySelector("#firstPay-input").value;
   const percentInput = +document.querySelector("#percent-input").value;
   const termInput = +document.querySelector("#term-input").value;
-  const redemptionPercentInput = +document.querySelector(
+  const redemptionPercentInput = document.querySelector(
     "#redemptionPercent-input"
   ).value;
-  const ndsInput = +document.querySelector("#nds-input").value;
+  const ndsInput = document.querySelector("#nds-input").value;
+  if (!sumInput || !percentInput || !termInput) {
+    return "error";
+  }
   const returnedData = {
     sum: sumInput ? sumInput : dataLeasing.sum,
     firstPayment: firstPayInput ? firstPayInput : dataLeasing.firstPayment,
     percent: percentInput ? percentInput : dataLeasing.percent,
     term: termInput ? termInput : dataLeasing.term,
     redemptionPercent: redemptionPercentInput
-      ? redemptionPercentInput
+      ? +redemptionPercentInput
       : dataLeasing.redemptionPercent,
-    nds: ndsInput ? ndsInput : dataLeasing.nds,
+    nds: ndsInput ? +ndsInput : dataLeasing.nds,
   };
   return returnedData;
 }

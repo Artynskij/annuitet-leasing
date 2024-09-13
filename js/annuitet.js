@@ -35,13 +35,18 @@ function getRedemptionValue({
   return (sum / 100) * redemptionPercent;
 }
 function getPercent({ percent: percent, value: value }) {
-  const valueOfPercent = +((value * percent) / (100 + percent)).toFixed(2);
-  const originValue = +(value - valueOfPercent).toFixed(2);
-  if (+(valueOfPercent + originValue).toFixed(2) !== value) {
-    // console.log(originValue);
-    // console.log(valueOfPercent);
-    // console.log(value);
+  let valueOfPercent;
+  let originValue;
 
+  if (percent !== 0) {
+    valueOfPercent = +((value * percent) / (100 + percent)).toFixed(2);
+    originValue = +(value - valueOfPercent).toFixed(2);
+  } else {
+    valueOfPercent = 0;
+    originValue = value;
+  }
+
+  if (+(valueOfPercent + originValue).toFixed(2) !== value) {
     console.log("getPercent error. Not exactly.");
   }
   return {
@@ -272,24 +277,39 @@ function leasingSchedule({
     // console.log(schedule[schedule.length - 1].principalPayment.value);
     // console.log(objectSum.value);
 
-   
     return schedule.map((item) => {
-      if(item.type === "lastMonthly") {
+      if (item.type === "lastMonthly") {
         if (difference > 0) {
           console.log(difference);
-          item.principalPayment.value = additionHundredth(item.principalPayment.value, difference, '-')
-          item.principalPayment.nds  = additionHundredth(item.principalPayment.nds, difference, '+')
+          item.principalPayment.value = additionHundredth(
+            item.principalPayment.value,
+            difference,
+            "-"
+          );
+          item.principalPayment.nds = additionHundredth(
+            item.principalPayment.nds,
+            difference,
+            "+"
+          );
         } else {
-          item.principalPayment.value = additionHundredth(item.principalPayment.value, difference, '+')
-          item.principalPayment.nds  = additionHundredth(item.principalPayment.nds, difference, '-')
+          item.principalPayment.value = additionHundredth(
+            item.principalPayment.value,
+            difference,
+            "+"
+          );
+          item.principalPayment.nds = additionHundredth(
+            item.principalPayment.nds,
+            difference,
+            "-"
+          );
         }
       }
-      return item
+      return item;
     });
   }
 
   schedule = checkFinalAllPaymentAndNds({ schedule: schedule });
-  schedule.pop()
-  schedule.push( getFinalResult({ schedule: schedule }))
+  schedule.pop();
+  schedule.push(getFinalResult({ schedule: schedule }));
   return schedule;
 }
