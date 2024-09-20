@@ -74,26 +74,124 @@ function leasingSchedule({
   term,
   redemptionPercent,
   nds,
+  condition,
 }) {
-  const kef = getRatePerMonth({ percent: percent });
-  const monthlyAnnuity = getRateAnnuity({ kef: kef, term: term });
   const redemptionValue = getRedemptionValue({
     sum: sum,
     redemptionPercent: redemptionPercent,
   }); // Добавочная стоимость
+  let kef = getRatePerMonth({ percent: percent });
+  let monthlyAnnuity = getRateAnnuity({ kef: kef, term: term });
   const financedAmount = sum - firstPayment - redemptionValue;
-  const monthlyPayment = +(financedAmount * monthlyAnnuity).toFixed(2) * 100;
+  let monthlyPayment = +(financedAmount * monthlyAnnuity).toFixed(2) * 100;
 
   let balance = financedAmount * 100;
   let schedule = [];
 
   schedule.push(getFirstPayment()); // первый платеж
-
+  console.log(condition);
   for (let i = 1; i <= term; i++) {
     let interestPayment = +((balance / 100) * kef).toFixed(2) * 100; // Процентная часть
     let principalPayment = monthlyPayment - interestPayment; // Погашение основного долга
-    balance -= principalPayment; // Остаток долга
+    if (!condition.find((item) => +item.term === i)) {
+      balance -= principalPayment; // Остаток долга
+    }
 
+    condition.forEach((item) => {
+      if (+item.term === i) {
+        if (
+          item.conditionData.find(
+            (conditionItem) =>
+              conditionItem.action === constantsConditionActions.percent
+          ) &&
+          item.conditionData.find(
+            (conditionItem) =>
+              conditionItem.action === constantsConditionActions.payment
+          )
+        ) {
+          applyConditions(
+            constantsConditionActions.percent +
+              constantsConditionActions.payment,
+            item.conditionData
+          );
+          return;
+        }
+        if (
+          item.conditionData.find(
+            (conditionItem) =>
+              conditionItem.action === constantsConditionActions.percent
+          )
+        ) {
+          applyConditions(
+            constantsConditionActions.percent,
+            item.conditionData[0].data
+          );
+          return;
+        }
+        if (
+          item.conditionData.find(
+            (conditionItem) =>
+              conditionItem.action === constantsConditionActions.payment
+          )
+        ) {
+          applyConditions(
+            constantsConditionActions.payment,
+            item.conditionData[0].data
+          );
+          return;
+        }
+        if (
+          item.conditionData.find(
+            (conditionItem) =>
+              conditionItem.action === constantsConditionActions.term
+          )
+        ) {
+          applyConditions(
+            constantsConditionActions.term,
+            item.conditionData[0].data
+          );
+          return;
+        }
+      }
+    }); // обработка условий
+    function applyConditions(action, item) {
+      switch (action) {
+        case constantsConditionActions.percent +
+          constantsConditionActions.payment:
+          break;
+        case constantsConditionActions.payment:
+          principalPayment = item.sum * 100 - interestPayment;
+          // перерасчет месячного платежа
+          balance -= principalPayment; // Остаток долга
+          monthlyAnnuity = getRateAnnuity({ kef: kef, term: term - i });
+          monthlyPayment = +((balance / 100) * monthlyAnnuity).toFixed(2) * 100;
+          break;
+
+        case constantsConditionActions.percent:
+          kef = getRatePerMonth({
+            percent: item.percent,
+          });
+          monthlyAnnuity = getRateAnnuity({ kef: kef, term: term - i + 1 });
+          monthlyPayment = +((balance / 100) * monthlyAnnuity).toFixed(2) * 100;
+          interestPayment = +((balance / 100) * kef).toFixed(2) * 100; // Процентная част
+          principalPayment = monthlyPayment - interestPayment; // Погашение основного долга
+          balance -= principalPayment; // Остаток долга
+          break;
+
+        case constantsConditionActions.term:
+          term = +item.end;
+          // console.log(term);
+          monthlyAnnuity = getRateAnnuity({ kef: kef, term: term - i + 1 });
+          monthlyPayment = +((balance / 100) * monthlyAnnuity).toFixed(2) * 100;
+          interestPayment = +((balance / 100) * kef).toFixed(2) * 100; // Процентная част
+          principalPayment = monthlyPayment - interestPayment; // Погашение основного долга
+          balance -= principalPayment; // Остаток долга
+          break;
+
+        default:
+          break;
+      }
+    }
     if (i !== term) {
       const interestPaymentWithNds = getPercent({
         percent: nds,
@@ -176,6 +274,7 @@ function leasingSchedule({
   }
   schedule.push(getLastPayment()); // последний платеж
   schedule.push(getFinalResult({ schedule: schedule })); // итого платежей
+
   function getFirstPayment() {
     const monthlyPayment = getPercent({
       percent: nds,
@@ -274,13 +373,9 @@ function leasingSchedule({
       "-"
     );
 
-    // console.log(schedule[schedule.length - 1].principalPayment.value);
-    // console.log(objectSum.value);
-
     return schedule.map((item) => {
       if (item.type === "lastMonthly") {
         if (difference > 0) {
-          console.log(difference);
           item.principalPayment.value = additionHundredth(
             item.principalPayment.value,
             difference,

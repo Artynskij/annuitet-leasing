@@ -1,18 +1,21 @@
+const body = document.querySelector("body");
 const resultBlock = document.querySelector(".result-ctn");
 const table = resultBlock.querySelector("table");
 const buttonCalcResult = document.querySelector(".calc-result");
 
 buttonCalcResult.addEventListener("click", (e) => {
   e.preventDefault();
-  const dataLeasingMock = {
-    sum: 120000,
+  const dataLeasingStart = {
+    sum: 0,
     firstPayment: 20000,
-    percent: 25,
-    term: 30,
+    percent: 0,
+    term: 0,
     redemptionPercent: 1,
     nds: 20,
+    condition: [],
   };
-  const dataLeasing = getDataInput(dataLeasingMock);
+  const dataLeasing = getDataInput(dataLeasingStart);
+
   if (dataLeasing === "error") {
     alert("нету важных данных");
     return;
@@ -49,9 +52,26 @@ function getDataInput(dataLeasing) {
     "#redemptionPercent-input"
   ).value;
   const ndsInput = document.querySelector("#nds-input").value;
-  if (!sumInput || !percentInput || !termInput) {
-    return "error";
-  }
+  // if (!sumInput || !percentInput || !termInput) {
+  //   return "error";
+  // }
+  const condition = [];
+  document.querySelectorAll(".condition-result__item").forEach((item) => {
+    const data = JSON.parse(item.getAttribute("data"));
+    const actualCondition = condition.find(
+      (item) => item.term === data.data.term
+    );
+    if (actualCondition) {
+      condition.forEach((item, index) => {
+        if (item.term === data.data.term) {
+          condition[index].conditionData = [data, ...item.conditionData];
+        }
+      });
+    } else {
+      condition.push({ term: data.data.term, conditionData: [data] });
+    }
+    
+  });
   const returnedData = {
     sum: sumInput ? sumInput : dataLeasing.sum,
     firstPayment: firstPayInput ? firstPayInput : dataLeasing.firstPayment,
@@ -61,6 +81,7 @@ function getDataInput(dataLeasing) {
       ? +redemptionPercentInput
       : dataLeasing.redemptionPercent,
     nds: ndsInput ? +ndsInput : dataLeasing.nds,
+    condition: condition,
   };
   return returnedData;
 }
@@ -76,6 +97,8 @@ function createRow({
   balance: balance,
 }) {
   const tr = document.createElement("tr");
+
+  tr.classList.add("table-row");
   const row = `
         <td>${month}</td>
         <td>${(+monthlyPaymentWithNds).toFixed(2)}</td>
@@ -105,8 +128,145 @@ function createHeadTable() {
             `;
   return html;
 }
-// function createElement(elementProp, text) {
-//   const element = document.createElement(elementProp);
-//   element.innerHTML = text;
-//   return element;
-// }
+
+function logicModal() {
+  // modals -------------------------------------------------------------
+  const btns = document.querySelectorAll(".open-modal");
+  const modalOverlay = document.querySelector(".modal-overlay ");
+  const modals = document.querySelectorAll(".modal");
+  const btnsClose = document.querySelectorAll(".modal-close");
+
+  btns.forEach((el) => {
+    el.addEventListener("click", (e) => {
+      let path = e.currentTarget.getAttribute("data-path");
+
+      modals.forEach((el) => {
+        el.classList.remove("modal--visible");
+      });
+
+      body.style.overflow = "hidden";
+      body.style.paddingRight = "10px";
+
+      document
+        .querySelector(`[data-target="${path}"]`)
+        .classList.add("modal--visible");
+      modalOverlay.classList.add("modal-overlay--visible");
+    });
+  });
+  btnsClose.forEach((el) => {
+    el.addEventListener("click", () => {
+      modalOverlay.classList.remove("modal-overlay--visible");
+      modals.forEach((el) => {
+        body.style.overflow = "auto";
+        body.style.paddingRight = "0";
+        el.classList.remove("modal--visible");
+      });
+    });
+  });
+  modalOverlay.addEventListener("click", (e) => {
+    if (e.target == modalOverlay) {
+      body.style.overflow = "auto";
+      body.style.paddingRight = "0";
+      modalOverlay.classList.remove("modal-overlay--visible");
+      modals.forEach((el) => {
+        el.classList.remove("modal--visible");
+      });
+    }
+  });
+}
+function createConditionsBlock() {
+  const buttonPercent = document.querySelector(".condition-percent-btn");
+  const buttonTerm = document.querySelector(".condition-term-btn");
+  const buttonPayment = document.querySelector(".condition-payment-btn");
+
+  buttonPercent.addEventListener("click", () => {
+    const inputDateStart = document.querySelector(
+      "#condition-percent__dateStart"
+    ).value;
+
+    const inputNewPercent = document.querySelector(
+      "#condition-percent__percent"
+    ).value;
+    const div = document.createElement("div");
+    div.innerText = `С платежа номер: ${inputDateStart}  рассчитать по ${inputNewPercent}% годовых`;
+    const dataCondition = {
+      action: constantsConditionActions.percent,
+      data: {
+        term: inputDateStart,
+        percent: inputNewPercent,
+      },
+    };
+    createRowConditionResult("Другой процент", div, dataCondition);
+    inputDateStart.value = "";
+    inputNewPercent.value = "";
+  });
+  buttonTerm.addEventListener("click", () => {
+    const inputDateStart = document.querySelector(
+      "#condition-term__dateStart"
+    ).value;
+    const inputDateEnd = document.querySelector(
+      "#condition-term__dateEnd"
+    ).value;
+    const div = document.createElement("div");
+    div.innerText = `С  платежа номер: ${inputDateStart} увеличен до  ${inputDateEnd} месяцев`;
+    const dataCondition = {
+      action: constantsConditionActions.term,
+      data: {
+        term: inputDateStart,
+        end: inputDateEnd,
+      },
+    };
+    createRowConditionResult("Другой срок", div, dataCondition);
+    inputDateStart.value = "";
+    inputDateEnd.value = "";
+  });
+  buttonPayment.addEventListener("click", () => {
+    const inputDate = document.querySelector(
+      "#condition-payment__number"
+    ).value;
+    const inputSum = document.querySelector("#condition-payment__sum").value;
+    const div = document.createElement("div");
+    div.innerText = `Платеж номер: ${inputDate}. Внесено ${inputSum} денег`;
+
+    const dataCondition = {
+      action: constantsConditionActions.payment,
+      data: {
+        term: inputDate,
+        sum: inputSum,
+      },
+    };
+    createRowConditionResult("Платеж на дату", div, dataCondition);
+    // dataLeasingStart.condition.push({
+    //   action: conditionActions.percent,
+    //   data: {
+    //     date: inputDate,
+    //     sum: inputSum,
+    //   },
+    // });
+    inputDate.value = "";
+    inputSum.value = "";
+  });
+  function createRowConditionResult(title, blockContent, data) {
+    const conditionBlock = document.querySelector(".condition-result");
+
+    const conditionItem = document.createElement("div");
+    conditionItem.setAttribute("data", JSON.stringify(data));
+    conditionItem.classList.add("condition-result__item");
+    const titleDiv = document.createElement("div");
+    titleDiv.classList.add("title");
+    titleDiv.innerText = title;
+    const buttonDelete = document.createElement("div");
+    buttonDelete.classList.add("delete-condition");
+    buttonDelete.innerText = "x";
+    buttonDelete.addEventListener("click", () => {
+      conditionItem.remove();
+    });
+    conditionItem.appendChild(titleDiv);
+    conditionItem.appendChild(blockContent);
+    conditionItem.appendChild(buttonDelete);
+
+    conditionBlock.appendChild(conditionItem);
+  }
+}
+createConditionsBlock();
+logicModal();

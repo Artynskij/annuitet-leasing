@@ -12,52 +12,113 @@
       <header></header>
       <section class="section-form">
         <div class="container">
-          <form class="form-input" action="">
-            <div class="block-input">
-              <label for="sum-input">Сумма с ндс</label>
-              <input id="sum-input" type="number" />
-            </div>
-            <div class="block-input">
-              <label for="firstPay-input">Первоначальный платеж</label>
-              <input value="0" id="firstPay-input" type="number" />
-            </div>
-            <div class="block-input">
-              <label for="percent-input">Процент</label>
-              <input id="percent-input" type="number" />
-            </div>
-            <div class="block-input">
-              <label for="term-input">Срок</label>
-              <input id="term-input" type="number" />
-            </div>
-            <div class="block-input">
-              <label for="term-input">Выкупной процент</label>
-              <input
-                value="1"
-                id="redemptionPercent-input"
-                type="redemptionPercent"
-              />
-            </div>
-            <div class="block-input">
-              <label for="term-input">НДС</label>
-              <input value="20" id="nds-input" type="number" />
-            </div>
-            <div class="condition">
-              <div>
+          <div class="form-input">
+            <div class="main-form">
+              <div class="block-input">
+                <label for="sum-input">Сумма с ндс</label>
+                <input value="690000" id="sum-input" type="number" />
+              </div>
+              <div class="block-input">
+                <label for="firstPay-input">Первоначальный платеж</label>
+                <input value="138000" id="firstPay-input" type="number" />
+              </div>
+              <div class="block-input">
+                <label for="percent-input">Процент</label>
+                <input value="18" id="percent-input" type="number" />
+              </div>
+              <div class="block-input">
+                <label for="term-input">Срок</label>
+                <input value="24" id="term-input" type="number" />
+              </div>
+              <div class="block-input">
+                <label for="term-input">Выкупной процент</label>
+                <input
+                  value="1"
+                  id="redemptionPercent-input"
+                  type="redemptionPercent"
+                />
+              </div>
+              <div class="block-input">
                 <label for="term-input">НДС</label>
                 <input value="20" id="nds-input" type="number" />
               </div>
             </div>
+
+            <div class="condition">
+              <button data-path="modal-percent" class="open-modal">
+                по процентам
+              </button>
+              <button data-path="modal-term" class="open-modal">
+                по срокам
+              </button>
+              <button data-path="modal-payment" class="open-modal">
+                по платежам
+              </button>
+              <div class="condition-result"></div>
+            </div>
             <button class="calc-result">Посчитать</button>
-          </form>
+          </div>
           <div class="result-ctn">
             <table></table>
           </div>
         </div>
       </section>
-      <footer></footer>
+      <footer>
+        <button id="main-test">Протестить</button>
+      </footer>
+      <div class="modals">
+        <div class="modal-overlay">
+          <div class="modal" data-target="modal-percent">
+            <h2>Изменение процента</h2>
+            <div class="block-input">
+              <label for="condition-percent__dateStart">С какого</label>
+              <input
+                value="2"
+                id="condition-percent__dateStart"
+                type="number"
+              />
+            </div>
+            <div class="block-input">
+              <label for="condition-percent__percent">Новый процент</label>
+              <input value="10" id="condition-percent__percent" type="number" />
+            </div>
+            <button class="condition-percent-btn modal-close">Принять условия</button>
+            <div class="modal-close close-x">x</div>
+          </div>
+          <div class="modal" data-target="modal-term">
+            <h2>Увеличить срок</h2>
+            <div class="block-input">
+              <label for="condition-term__dateStart">С какого</label>
+              <input value="2" id="condition-term__dateStart" type="number" />
+            </div>
+
+            <div class="block-input">
+              <label for="condition-term__dateEnd">Новый срок</label>
+              <input value="10" id="condition-term__dateEnd" type="number" />
+            </div>
+            <button class="condition-term-btn modal-close">Принять условия</button>
+            <div class="modal-close close-x">x</div>
+          </div>
+          <div class="modal" data-target="modal-payment">
+            <h2>Изменить платеж</h2>
+            <div class="block-input">
+              <label for="condition-payment__number">Номер платежа</label>
+              <input value="2" id="condition-payment__number" type="number" />
+            </div>
+
+            <div class="block-input">
+              <label for="condition-payment__sum">Внесенная сумма</label>
+              <input value="10" id="condition-payment__sum" type="number" />
+            </div>
+            <button class="condition-payment-btn modal-close">Принять условия</button>
+            <div class="modal-close close-x">x</div>
+          </div>
+        </div>
+      </div>
       <script src="./js/default.js"></script>
       <script src="./js/annuitet.js"></script>
       <script src="./js/app.js"></script>
+      <script src="./js/test.js"></script>
     </div>
   </body>
 </html>
