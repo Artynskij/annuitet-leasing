@@ -1,10 +1,12 @@
 const testButton = document.querySelector("#main-test");
-const stateError = {
-  splitPayment: false,
-  remainCost: false,
-  startEndData: false,
-};
+
 testButton.addEventListener("click", () => {
+  const stateError = {
+    splitPayment: false,
+    remainCost: false,
+    startEndData: false,
+    conditionError: false,
+  };
   const table = document.querySelector(".result-ctn");
   const rows = table.querySelectorAll(".table-row");
   const inputData = {
@@ -13,9 +15,9 @@ testButton.addEventListener("click", () => {
     percent: document.querySelector("#percent-input").value,
     term: document.querySelector("#term-input").value,
   };
-  const lastRow = rows[rows.length - 1].querySelectorAll("td");
+  const lastRow = rows[rows.length - 1]?.querySelectorAll("td");
 
-  rows.forEach((row, index) => {
+  rows?.forEach((row, index) => {
     if (index === rows.length - 1) {
       return;
     }
@@ -63,14 +65,45 @@ testButton.addEventListener("click", () => {
     stateError.startEndData = true;
     console.log("test startEndData not  completed");
   }
+if(!testConditionValidate()){
+  stateError.conditionError = true;
+  console.log("test testConditionValidate not  completed");
+  alert('Некоторые условия пересекаются по номеру платежа и его типу. ')
+}
+  
   function checkStartEndData() {
+    if(!lastRow) return true
     const sumValue = +(+lastRow[2].innerHTML * 100).toFixed(0);
-    const sumNds = +(+lastRow[3].innerHTML * 100).toFixed(0);
+    const sumNds = +(+lastRow[3]?.innerHTML * 100).toFixed(0);
 
-    return sumValue + sumNds === +inputData.sum * 100;
+    return sumValue + sumNds === +inputData.sum * 100 ;
   }
-  if(stateError.remainCost || stateError.splitPayment || stateError.startEndData){
-    alert('Тест не пройдет. Обратитесь к богу чтобы он исправил все')
+  function testConditionValidate() {
+    let valid = true;
+    const conditionItems = document.querySelectorAll(".condition-result__item");
+    const conditionData = [];
+    conditionItems.forEach((conditionItem) => {
+      conditionData.push(JSON.parse(conditionItem.getAttribute("data")));
+    });
+    conditionData.forEach((condition) => {
+      const filteredCondition = conditionData.filter(
+        (checkCondition) =>
+          checkCondition.action === condition.action &&
+          checkCondition.data.term === condition.data.term
+      );
+
+      if (filteredCondition.length > 1) {
+        valid = false;
+      }
+    });
+    return valid;
+  }
+  if (
+    stateError.remainCost ||
+    stateError.splitPayment ||
+    stateError.startEndData
+  ) {
+    alert("Тест не пройдет. Обратитесь к богу чтобы он исправил все");
   }
   console.log(stateError);
 });

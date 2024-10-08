@@ -20,7 +20,7 @@ buttonCalcResult.addEventListener("click", (e) => {
     alert("нету важных данных");
     return;
   }
-  const schedule = leasingSchedule({ ...dataLeasing });
+  const schedule = leasingAnnuitySchedule({ ...dataLeasing });
 
   table.innerHTML = "";
   table.appendChild(createHeadTable());
@@ -52,9 +52,6 @@ function getDataInput(dataLeasing) {
     "#redemptionPercent-input"
   ).value;
   const ndsInput = document.querySelector("#nds-input").value;
-  // if (!sumInput || !percentInput || !termInput) {
-  //   return "error";
-  // }
   const condition = [];
   document.querySelectorAll(".condition-result__item").forEach((item) => {
     const data = JSON.parse(item.getAttribute("data"));
@@ -70,7 +67,6 @@ function getDataInput(dataLeasing) {
     } else {
       condition.push({ term: data.data.term, conditionData: [data] });
     }
-    
   });
   const returnedData = {
     sum: sumInput ? sumInput : dataLeasing.sum,
@@ -187,8 +183,11 @@ function createConditionsBlock() {
     const inputNewPercent = document.querySelector(
       "#condition-percent__percent"
     ).value;
-    const div = document.createElement("div");
-    div.innerText = `С платежа номер: ${inputDateStart}  рассчитать по ${inputNewPercent}% годовых`;
+    const div = createTag(
+      "div",
+      `С платежа номер: ${inputDateStart}  рассчитать по ${inputNewPercent}% годовых`
+    );
+
     const dataCondition = {
       action: constantsConditionActions.percent,
       data: {
@@ -207,8 +206,10 @@ function createConditionsBlock() {
     const inputDateEnd = document.querySelector(
       "#condition-term__dateEnd"
     ).value;
-    const div = document.createElement("div");
-    div.innerText = `С  платежа номер: ${inputDateStart} увеличен до  ${inputDateEnd} месяцев`;
+    const div = createTag(
+      "div",
+      `С  платежа номер: ${inputDateStart} увеличен до  ${inputDateEnd} месяцев`
+    );
     const dataCondition = {
       action: constantsConditionActions.term,
       data: {
@@ -225,9 +226,10 @@ function createConditionsBlock() {
       "#condition-payment__number"
     ).value;
     const inputSum = document.querySelector("#condition-payment__sum").value;
-    const div = document.createElement("div");
-    div.innerText = `Платеж номер: ${inputDate}. Внесено ${inputSum} денег`;
-
+    const div = createTag(
+      "div",
+      `Платеж номер: ${inputDate}. Внесено ${inputSum} денег`
+    );
     const dataCondition = {
       action: constantsConditionActions.payment,
       data: {
@@ -236,28 +238,28 @@ function createConditionsBlock() {
       },
     };
     createRowConditionResult("Платеж на дату", div, dataCondition);
-    // dataLeasingStart.condition.push({
-    //   action: conditionActions.percent,
-    //   data: {
-    //     date: inputDate,
-    //     sum: inputSum,
-    //   },
-    // });
     inputDate.value = "";
     inputSum.value = "";
   });
+  function createTag(tag, text, className) {
+    const newTag = document.createElement(tag);
+    newTag.innerText = text;
+
+    className?.forEach((classN) => {
+      newTag.classList.add(classN);
+    });
+
+    return newTag;
+  }
   function createRowConditionResult(title, blockContent, data) {
     const conditionBlock = document.querySelector(".condition-result");
 
     const conditionItem = document.createElement("div");
     conditionItem.setAttribute("data", JSON.stringify(data));
     conditionItem.classList.add("condition-result__item");
-    const titleDiv = document.createElement("div");
-    titleDiv.classList.add("title");
-    titleDiv.innerText = title;
-    const buttonDelete = document.createElement("div");
-    buttonDelete.classList.add("delete-condition");
-    buttonDelete.innerText = "x";
+    const titleDiv = createTag("div", title, ["title"]);
+    const buttonDelete = createTag("div", "x", ["delete-condition"]);
+
     buttonDelete.addEventListener("click", () => {
       conditionItem.remove();
     });
