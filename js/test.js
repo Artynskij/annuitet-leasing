@@ -24,7 +24,7 @@ testButton.addEventListener("click", () => {
 
     const cells = row.querySelectorAll("td");
 
-    const payment = +cells[1].innerHTML * 100;
+    const payment = +(+cells[1].innerHTML * 100).toFixed(0);
     const principalPaymentValue = +(+cells[2].innerHTML * 100).toFixed(0);
     const principalPaymentNds = +(+cells[3].innerHTML * 100).toFixed(0);
     const interestPaymentValue = +(+cells[4].innerHTML * 100).toFixed(0);
@@ -52,6 +52,8 @@ testButton.addEventListener("click", () => {
       );
     }
     function checkSplitPayment() {
+      console.log(`${index} - ${payment}`);
+
       return (
         payment ===
         principalPaymentValue +
@@ -65,18 +67,18 @@ testButton.addEventListener("click", () => {
     stateError.startEndData = true;
     console.log("test startEndData not  completed");
   }
-if(!testConditionValidate()){
-  stateError.conditionError = true;
-  console.log("test testConditionValidate not  completed");
-  alert('Некоторые условия пересекаются по номеру платежа и его типу. ')
-}
-  
+  if (!testConditionValidate()) {
+    stateError.conditionError = true;
+    console.log("test testConditionValidate not  completed");
+    alert("Некоторые условия пересекаются по номеру платежа и его типу. ");
+  }
+
   function checkStartEndData() {
-    if(!lastRow) return true
+    if (!lastRow) return true;
     const sumValue = +(+lastRow[2].innerHTML * 100).toFixed(0);
     const sumNds = +(+lastRow[3]?.innerHTML * 100).toFixed(0);
 
-    return sumValue + sumNds === +inputData.sum * 100 ;
+    return sumValue + sumNds === +inputData.sum * 100;
   }
   function testConditionValidate() {
     let valid = true;
