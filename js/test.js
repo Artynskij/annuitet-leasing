@@ -52,7 +52,7 @@ testButton.addEventListener("click", () => {
       );
     }
     function checkSplitPayment() {
-      console.log(`${index} - ${payment}`);
+      // console.log(`${index} - ${payment}`);
 
       return (
         payment ===

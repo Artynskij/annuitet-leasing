@@ -15,12 +15,16 @@
           <div class="form-annuity">
             <div class="main-form">
               <div class="block-input">
+                <label for="name-input">Название файла</label>
+                <input value="" id="name-input" type="text" />
+              </div>
+              <div class="block-input">
                 <label for="sum-input">Сумма с ндс</label>
-                <input value="1528440" id="sum-input" type="number" />
+                <input value="10000" id="sum-input" type="number" />
               </div>
               <div class="block-input">
                 <label for="firstPay-input">Первоначальный платеж</label>
-                <input value="611376" id="firstPay-input" type="number" />
+                <input value="1000" id="firstPay-input" type="number" />
               </div>
               <div class="block-input">
                 <label for="percent-input">Процент</label>
@@ -28,7 +32,7 @@
               </div>
               <div class="block-input">
                 <label for="term-input">Срок</label>
-                <input value="60" id="term-input" type="number" />
+                <input value="10" id="term-input" type="number" />
               </div>
               <div class="block-input">
                 <label for="term-input">Выкупной процент</label>
@@ -56,8 +60,11 @@
               </button>
               <div class="condition-result"></div>
             </div>
-            <button class="calc-result">Посчитать</button>
-            <button id="main-test">Протестить</button>
+            <div></div>
+            <div>   <button class="calc-result">Посчитать</button>
+              <button id="main-test">Протестить</button>
+              <a id="table-download">Скачать таблицу</a></div>
+         
           </div>
           <div class="result-ctn">
             <table></table>
