@@ -14,9 +14,17 @@
         <div class="container">
           <div class="form-annuity">
             <div class="main-form">
+              <div class='block-input'>
+                <select name="select" id="changeSchedule">
+                  <!--Supplement an id here instead of using 'name'-->
+                  <option value="ann">Аннуитетный</option>
+                  <option value="diff" selected>Дифференцированный</option>
+              
+                </select>
+              </div>
               <div class="block-input">
-                <label for="name-input">Название файла</label>
-                <input value="" id="name-input" type="text" />
+                <label for="nameFile-input">Название файла</label>
+                <input value="" id="nameFile-input" type="text" />
               </div>
               <div class="block-input">
                 <label for="sum-input">Сумма с ндс</label>
@@ -123,8 +131,9 @@
           </div>
         </div>
       </div>
+      <script src="./js/dowloadFile.js"></script>
       <script src="./js/default.js"></script>
-      <script src="./js/annuity.js"></script>
+      <script src="./js/schedule.js"></script>
       <script src="./js/app.js"></script>
       <script src="./js/test.js"></script>
     </div>

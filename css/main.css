@@ -54,6 +54,11 @@ td {
   padding: 10px;
   border: 1px solid #ccc;
 }
+
+
+#changeSchedule{
+  width: fit-content;
+}
 /* ------------------------------------------------- modal------------------------------------ */
 .modal-overlay {
   position: fixed;
