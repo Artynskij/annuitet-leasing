@@ -59,7 +59,7 @@ buttonCalcResult.addEventListener("click", (e) => {
     );
   });
 
-  downloadFile(schedule);
+  // downloadFile(schedule);
 
   console.log(schedule);
 });

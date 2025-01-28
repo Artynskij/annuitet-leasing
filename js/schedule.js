@@ -29,7 +29,6 @@ function getRedemptionValue({
 function getPercent({ percent: percent, value: value }) {
   let valueOfPercent;
   let originValue;
-  console.log(value);
 
   if (percent !== 0) {
     valueOfPercent = +((value * percent) / (100 + percent)).toFixed(2);
@@ -127,10 +126,12 @@ function getFinalResult({ schedule }) {
       "+"
     );
   });
+
   return allPayment;
 }
 function checkFinalAllPaymentAndNds({ schedule, nds, sum }) {
   const objectSum = getPercent({ percent: nds, value: sum });
+
   const difference = additionHundredth(
     schedule[schedule.length - 1].principalPayment.value,
     objectSum.value,
@@ -139,29 +140,30 @@ function checkFinalAllPaymentAndNds({ schedule, nds, sum }) {
 
   return schedule.map((item) => {
     if (item.type === "lastMonthly") {
-      if (difference > 0) {
-        item.principalPayment.value = additionHundredth(
-          item.principalPayment.value,
-          difference,
-          "-"
-        );
-        item.principalPayment.nds = additionHundredth(
-          item.principalPayment.nds,
-          difference,
-          "+"
-        );
-      } else {
-        item.principalPayment.value = additionHundredth(
-          item.principalPayment.value,
-          difference,
-          "+"
-        );
-        item.principalPayment.nds = additionHundredth(
-          item.principalPayment.nds,
-          difference,
-          "-"
-        );
-      }
+      // if (difference > 0) {
+      item.principalPayment.value = additionHundredth(
+        item.principalPayment.value,
+        difference,
+        "-"
+      );
+      item.principalPayment.nds = additionHundredth(
+        item.principalPayment.nds,
+        difference,
+        "+"
+      );
+      // } else {
+      //   item.principalPayment.value = additionHundredth(
+      //     item.principalPayment.value,
+      //     difference,
+      //     "+"
+      //   );
+      //   console.log(item.principalPayment.value);
+      //   item.principalPayment.nds = additionHundredth(
+      //     item.principalPayment.nds,
+      //     difference,
+      //     "-"
+      //   );
+      // }
     }
     return item;
   });
@@ -669,6 +671,15 @@ class Differentiated {
       })
     ); // последний платеж
     schedule.push(getFinalResult({ schedule: schedule })); // итого платежей
+
+    schedule = checkFinalAllPaymentAndNds({
+      schedule: schedule,
+      nds: this.nds,
+      sum: this.sum,
+    });
+    schedule.pop();
+    schedule.push(getFinalResult({ schedule: schedule }));
+
     return schedule;
   }
 }

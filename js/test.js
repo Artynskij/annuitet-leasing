@@ -35,7 +35,7 @@ testButton.addEventListener("click", () => {
 
     if (!checkSplitPayment()) {
       stateError.splitPayment = true;
-      console.log("test splitPayment not  completed");
+      console.log(`test splitPayment not  completed ${index}`);
     }
     if (index > 0) {
       if (!checkRemainCost()) {
