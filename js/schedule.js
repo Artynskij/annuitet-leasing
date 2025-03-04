@@ -1,3 +1,6 @@
+// Principal - гашение основного долга
+// Interest - наложенный процент долга
+
 function additionHundredth(num1, num2, sign) {
   let returnedData = "";
   switch (sign) {
@@ -47,13 +50,42 @@ function getPercent({ percent: percent, value: value }) {
     nds: valueOfPercent,
   };
 }
-function getFirstPayment({ nds, firstPayment, balance, redemptionValue }) {
+function addPercent({ percent: percent, value: value }) {
+  let valueOfPercent;
+  let originValue;
+
+  if (percent !== 0) {
+    valueOfPercent = +((value * percent) / 100).toFixed(2);
+    originValue = +(value + valueOfPercent).toFixed(2);
+  } else {
+    valueOfPercent = 0;
+    originValue = value;
+  }
+
+  if (+(valueOfPercent + value).toFixed(2) !== originValue) {
+    console.log(`getPercent error. Not exactly. ${percent}, ${value}`);
+  }
+  return {
+    withNds: originValue, //originValue
+    value: value, //value
+    nds: valueOfPercent,
+  };
+}
+
+function getFirstPayment({
+  nds,
+  firstPayment,
+  balance,
+  redemptionValue,
+  clientNDSCalc,
+ 
+}) {
   const monthlyPayment = getPercent({
-    percent: nds,
+    percent: clientNDSCalc ? nds : 0,
     value: firstPayment,
   });
   const principalPayment = getPercent({
-    percent: nds,
+    percent: clientNDSCalc ? nds : 0,
     value: firstPayment,
   });
   return {
@@ -64,13 +96,21 @@ function getFirstPayment({ nds, firstPayment, balance, redemptionValue }) {
     balance: +balance.toFixed(0) / 100 + redemptionValue,
   };
 }
-function getLastPayment({ nds, redemptionValue, schedule }) {
+
+function getLastPayment({
+  nds,
+  redemptionValue,
+  schedule,
+  clientNDSCalc = true,
+  leasingNDSCalc = true,
+
+}) {
   const monthlyPayment = getPercent({
-    percent: nds,
+    percent: clientNDSCalc ? nds : 0,
     value: redemptionValue,
   });
   const principalPayment = getPercent({
-    percent: nds,
+    percent: clientNDSCalc ? nds : 0,
     value: redemptionValue,
   });
   return {
@@ -129,8 +169,16 @@ function getFinalResult({ schedule }) {
 
   return allPayment;
 }
-function checkFinalAllPaymentAndNds({ schedule, nds, sum }) {
-  const objectSum = getPercent({ percent: nds, value: sum });
+function checkFinalAllPaymentAndNds({
+  schedule,
+  nds,
+  sum,
+  clientNDSCalc = true,
+}) {
+  const objectSum = getPercent({
+    percent: clientNDSCalc ? nds : 0,
+    value: sum,
+  });
 
   const difference = additionHundredth(
     schedule[schedule.length - 1].principalPayment.value,
@@ -151,19 +199,6 @@ function checkFinalAllPaymentAndNds({ schedule, nds, sum }) {
         difference,
         "+"
       );
-      // } else {
-      //   item.principalPayment.value = additionHundredth(
-      //     item.principalPayment.value,
-      //     difference,
-      //     "+"
-      //   );
-      //   console.log(item.principalPayment.value);
-      //   item.principalPayment.nds = additionHundredth(
-      //     item.principalPayment.nds,
-      //     difference,
-      //     "-"
-      //   );
-      // }
     }
     return item;
   });
@@ -177,6 +212,8 @@ class Annuity {
     redemptionPercent,
     nds,
     condition,
+    individCheck,
+    leasingCheck,
   }) {
     this.sum = sum;
     this.firstPayment = firstPayment;
@@ -185,6 +222,8 @@ class Annuity {
     this.redemptionPercent = redemptionPercent;
     this.nds = nds;
     this.condition = condition;
+    this.clientNDSCalc = individCheck;
+    this.leasingNDSCalc = leasingCheck;
 
     this.redemptionValue = getRedemptionValue({
       sum: sum,
@@ -224,12 +263,14 @@ class Annuity {
         firstPayment: this.firstPayment,
         balance: this.balance,
         redemptionValue: this.redemptionValue,
+        clientNDSCalc: this.clientNDSCalc,
+       
       })
     ); // первый платеж
 
     for (let i = 1; i <= this.term; i++) {
       let interestPayment = Annuity.calculateInterestPayment({
-        balance: this.balance,
+        balance: this.balance + this.redemptionValue,
         kef: this.kef,
       }); // Процентная часть
       let principalPayment = this.monthlyPayment - interestPayment; // Погашение основного долга
@@ -265,7 +306,7 @@ class Annuity {
             kef: this.kef,
             term: this.term - i + 1,
           });
-          interestPayment = +((balance / 100) * this.kef).toFixed(2) * 100; // Процентная часть
+          interestPayment = +((this.balance / 100) * this.kef).toFixed(2) * 100; // Процентная часть
           principalPayment = +actionPayment.sum * 100 - interestPayment; // другой платеж
 
           // перерасчет месячного платежа
@@ -376,11 +417,11 @@ class Annuity {
 
       if (i !== this.term) {
         const interestPaymentWithNds = getPercent({
-          percent: this.nds,
+          percent: this.leasingNDSCalc ? this.nds : 0,
           value: +interestPayment.toFixed(0) / 100,
         });
         const principalPaymentWithNds = getPercent({
-          percent: this.nds,
+          percent: this.clientNDSCalc ? this.nds : 0,
           value: +principalPayment.toFixed(0) / 100,
         });
         const monthlyPaymentWithNds = {
@@ -421,11 +462,11 @@ class Annuity {
         }
         // высчитываем НДС
         const interestPaymentWithNds = getPercent({
-          percent: this.nds,
+          percent: this.leasingNDSCalc ? this.nds : 0,
           value: interestPayment / 100,
         });
         const principalPaymentWithNds = getPercent({
-          percent: this.nds,
+          percent: this.clientNDSCalc ? this.nds : 0,
           value: principalPayment / 100,
         });
 
@@ -446,7 +487,6 @@ class Annuity {
             "+"
           ),
         };
-        console.log(principalPaymentWithNds);
 
         schedule.push({
           type: "lastMonthly",
@@ -463,6 +503,8 @@ class Annuity {
         nds: this.nds,
         redemptionValue: this.redemptionValue,
         schedule: schedule,
+        clientNDSCalc: this.clientNDSCalc,
+        leasingNDSCalc: this.leasingNDSCalc,
       })
     ); // последний платеж
     schedule.push(getFinalResult({ schedule: schedule })); // итого платежей
@@ -471,6 +513,7 @@ class Annuity {
       schedule: schedule,
       nds: this.nds,
       sum: this.sum,
+      clientNDSCalc: this.clientNDSCalc,
     });
     schedule.pop();
     schedule.push(getFinalResult({ schedule: schedule }));
@@ -486,6 +529,8 @@ class Differentiated {
     redemptionPercent,
     nds,
     condition,
+    individCheck,
+    leasingCheck,
   }) {
     this.sum = sum;
     this.firstPayment = firstPayment;
@@ -494,6 +539,8 @@ class Differentiated {
     this.redemptionPercent = redemptionPercent;
     this.nds = nds;
     this.condition = condition;
+    this.clientNDSCalc = individCheck;
+    this.leasingNDSCalc = leasingCheck;
 
     this.redemptionValue = getRedemptionValue({
       sum: sum,
@@ -515,7 +562,7 @@ class Differentiated {
 
   // Расчет процентов за месяц
   static calculateInterestPayment({ balance, percent }) {
-    return +((balance * percent) / 12 / 100).toFixed(2);
+    return +((((balance * percent) / 365) * 30) / 100).toFixed(0);
   }
   generateSchedule() {
     let schedule = [];
@@ -525,6 +572,7 @@ class Differentiated {
         firstPayment: this.firstPayment,
         balance: this.balance,
         redemptionValue: this.redemptionValue,
+        clientNDSCalc: this.clientNDSCalc,
       })
     ); // первый платеж
     for (let month = 1; month <= this.term; month++) {
@@ -567,15 +615,15 @@ class Differentiated {
 
       if (month !== this.term) {
         const interestPayment = Differentiated.calculateInterestPayment({
-          balance: this.balance,
+          balance: this.balance + this.redemptionValue * 100,
           percent: this.percent,
         });
-        const interestPaymentWithNds = getPercent({
-          percent: this.nds,
+        const interestPaymentWithNds = addPercent({
+          percent: this.leasingNDSCalc ? this.nds : 0,
           value: +interestPayment.toFixed(0) / 100,
         });
         const principalPaymentWithNds = getPercent({
-          percent: this.nds,
+          percent: this.clientNDSCalc ? this.nds : 0,
           value: +this.principalPayment.toFixed(0) / 100,
         });
         const monthlyPaymentWithNds = {
@@ -627,14 +675,15 @@ class Differentiated {
           this.balance -= Math.abs(this.balance);
         }
         // высчитываем НДС
-        const interestPaymentWithNds = getPercent({
-          percent: this.nds,
+        const interestPaymentWithNds = addPercent({
+          percent: this.leasingNDSCalc ? this.nds : 0,
           value: interestPayment / 100,
         });
         const principalPaymentWithNds = getPercent({
-          percent: this.nds,
+          percent: this.clientNDSCalc ? this.nds : 0,
           value: this.principalPayment / 100,
         });
+
         const monthlyPaymentWithNds = {
           withNds: additionHundredth(
             interestPaymentWithNds.withNds,
@@ -663,11 +712,13 @@ class Differentiated {
         });
       }
     }
+
     schedule.push(
       getLastPayment({
         nds: this.nds,
         redemptionValue: this.redemptionValue,
         schedule: schedule,
+        clientNDSCalc: this.clientNDSCalc,
       })
     ); // последний платеж
     schedule.push(getFinalResult({ schedule: schedule })); // итого платежей
@@ -676,6 +727,7 @@ class Differentiated {
       schedule: schedule,
       nds: this.nds,
       sum: this.sum,
+      clientNDSCalc: this.clientNDSCalc,
     });
     schedule.pop();
     schedule.push(getFinalResult({ schedule: schedule }));

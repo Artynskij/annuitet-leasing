@@ -3,13 +3,14 @@ const resultBlock = document.querySelector(".result-ctn");
 const table = resultBlock.querySelector("table");
 const buttonCalcResult = document.querySelector(".calc-result");
 const buttonDownload = document.querySelector("#table-download");
-
+let schedule;
 buttonDownload.addEventListener("click", (e) => {
-  if (!buttonDownload.href) {
-    e.preventDefault();
-    alert("нечего скачивать");
+  e.preventDefault();
+  if (!schedule) {
+    alert("сформируйте таблицу");
     return;
   }
+  downloadFile(schedule);
 });
 
 // подсчет
@@ -24,6 +25,7 @@ buttonCalcResult.addEventListener("click", (e) => {
     redemptionPercent: 1,
     nds: 20,
     condition: [],
+    individCheck:false
   };
   const dataLeasing = getDataInput(dataLeasingStart);
   const selectValue = document.querySelector("#changeSchedule").value;
@@ -39,7 +41,7 @@ buttonCalcResult.addEventListener("click", (e) => {
     calcClass = new Differentiated({ ...dataLeasing });
   }
 
-  const schedule = calcClass.generateSchedule();
+  schedule = calcClass.generateSchedule();
 
   table.innerHTML = "";
   table.appendChild(createHeadTable());
@@ -59,8 +61,7 @@ buttonCalcResult.addEventListener("click", (e) => {
     );
   });
 
-  // downloadFile(schedule);
-
+  // 25.4307
   console.log(schedule);
 });
 
@@ -73,6 +74,9 @@ function getDataInput(dataLeasing) {
     "#redemptionPercent-input"
   ).value;
   const ndsInput = document.querySelector("#nds-input").value;
+  const individCheck = document.querySelector("#individ-checkbox").checked;
+  const leasingCheck = document.querySelector("#leasing-checkbox").checked;
+
   const condition = [];
   document.querySelectorAll(".condition-result__item").forEach((item) => {
     const data = JSON.parse(item.getAttribute("data"));
@@ -99,6 +103,8 @@ function getDataInput(dataLeasing) {
       : dataLeasing.redemptionPercent,
     nds: ndsInput ? +ndsInput : dataLeasing.nds,
     condition: condition,
+    individCheck: individCheck,
+    leasingCheck: leasingCheck,
   };
   return returnedData;
 }

@@ -58,7 +58,7 @@ function downloadFile(tableData) {
       // Создаем новую книгу
       const workbook = new ExcelJS.Workbook();
       const worksheet = workbook.addWorksheet("Отчёт");
-    
+
       const rows = tableData.map((item) => [
         item.month,
         item.monthlyPayment?.withNds || 0,
@@ -71,7 +71,7 @@ function downloadFile(tableData) {
         item.balance || 0,
       ]);
       const rowHeadersMainTable = worksheet.addRow(headers);
-      rowHeadersMainTable.height = 25
+      rowHeadersMainTable.height = 25;
 
       rows.forEach((row) => {
         worksheet.addRow(row);
@@ -83,7 +83,9 @@ function downloadFile(tableData) {
       const url = URL.createObjectURL(blob);
       const a = document.createElement("a");
       a.href = url;
-      a.download = "Отчет.xlsx";
+      const nameFile = document.querySelector("#nameFile-input").value;
+
+      a.download = `${nameFile || "без имени отчет"}.xlsx`;
       a.click();
       URL.revokeObjectURL(url);
     };
