@@ -78,7 +78,6 @@ function getFirstPayment({
   balance,
   redemptionValue,
   clientNDSCalc,
- 
 }) {
   const monthlyPayment = getPercent({
     percent: clientNDSCalc ? nds : 0,
@@ -103,7 +102,6 @@ function getLastPayment({
   schedule,
   clientNDSCalc = true,
   leasingNDSCalc = true,
-
 }) {
   const monthlyPayment = getPercent({
     percent: clientNDSCalc ? nds : 0,
@@ -235,9 +233,16 @@ class Annuity {
       kef: this.kef,
       term: this.term,
     });
+    console.log(`коэфициент -  ${this.kef}`);
+    console.log(`месячный аннуитент -  ${this.monthlyAnnuity}`);
+    
     this.financedAmount = this.sum - this.firstPayment - this.redemptionValue;
     this.monthlyPayment =
-      +(this.financedAmount * this.monthlyAnnuity).toFixed(2) * 100;
+      +(
+        (this.financedAmount) *
+        this.monthlyAnnuity
+      ).toFixed(2) * 100;
+    // console.log(this.financedAmount + this.redemptionValue);
 
     this.balance = this.financedAmount * 100;
   }
@@ -264,7 +269,6 @@ class Annuity {
         balance: this.balance,
         redemptionValue: this.redemptionValue,
         clientNDSCalc: this.clientNDSCalc,
-       
       })
     ); // первый платеж
 
