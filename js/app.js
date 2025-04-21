@@ -167,8 +167,8 @@ function logicModal() {
         el.classList.remove("modal--visible");
       });
 
-      body.style.overflow = "hidden";
-      body.style.paddingRight = "10px";
+      // body.style.overflow = "hidden";
+      // body.style.paddingRight = "10px";
 
       document
         .querySelector(`[data-target="${path}"]`)
@@ -180,8 +180,8 @@ function logicModal() {
     el.addEventListener("click", () => {
       modalOverlay.classList.remove("modal-overlay--visible");
       modals.forEach((el) => {
-        body.style.overflow = "auto";
-        body.style.paddingRight = "0";
+        // body.style.overflow = "auto";
+        // body.style.paddingRight = "0";
         el.classList.remove("modal--visible");
       });
     });
